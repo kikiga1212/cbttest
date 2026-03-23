@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<!--xmlns를 지정하면 해당 명령이 목록으로 출력-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout::head('문제관리')}">
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!--사이드바-->
+            <th:block th:replace="~{fragments/layout::sidebar('question')}"></th:block>
+            <main class="col-10 main-content">
+                <div class="page-header">
+                    <h2><i class="bi bi-question-circle text-success"></i> 문제관리</h2>
+                    <p class="text-muted mb-0">교과목을 선택하여 문제를 관리합니다.</p>
+                </div>
+                <div class="row g-3">
+                    <div th:if="${subjects.empty}" class="col-12"><!--오류 메시지 -->
+                        등록된 교과목이 없습니다. <a th:href="@{/subjects/new}">교과목을 먼저 등록</a>해 주세요.
+                    </div>
+                    <div class="col-md-4" th:each="subject:${subjects}"><!-- 목록-->
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="bi bi-journal-bookmark text-primary"></i><span th:text="${subject.name}"></span></h5>
+                                <p class="card-text text-muted" th:text="${subject.description}"></p>
+                                <span class="badge bg-primary" th:text="${subject.chapterCount}+'개 챕터'"></span>
+                            </div>
+                            <div class="card-footer">
+                                <a th:href="@{/questions/subject/{id}(id=${subject.id})}">
+                                    <i class="bi bi-arrow-right-circle"></i> 챕터 선택
+                                </a>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+  <div th:replace="~{fragments/layout::scripts}"></div>
+</body>
+</html>

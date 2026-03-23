@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<!--xmlns를 지정하면 해당 명령이 목록으로 출력-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout::head('문제관리 - 챕터선택')}">
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!--사이드바-->
+            <th:block th:replace="~{fragments/layout::sidebar('question')}"></th:block>
+            <main class="col-10 main-content">
+                <div class="page-header"><!--타이틀 -->
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a th:href="@{/questions}">문제관리</a>
+                            </li>
+                            <li class="breadcrumb-item active" th:text="${subject.name}">
+                                교과목
+                            </li>
+                        </ol>
+                    </nav>
+                    <h2>
+                        <i class="bi bi-question-circle text-success"></i> <span th:text="${subject.name}"></span>
+                    </h2>
+                </div>
+                <div class="row g-3"><!--챕터 항목 -->
+                    <div th:if="${chapters.empty}" class="col-12"><!-- 오류메시지-->
+                        <div class="alert alert-info">
+                            등록된 챕터가 없습니다. <a th:href="@{/subjects/{id}(id=${subject.id})}">챕터를 먼저 등록</a>
+                        </div>
+                    </div>
+                    <div class="col-md-4" th:each="chapter:${chapters}"><!-- 챕터-->
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <span class="badge bg-secondary me-1" th:text="'CH'+${chapter.chapterNo}"></span>
+                                    <span th:text="${chapter.title}"></span>
+                                </h5>
+                                <p class="card-text text-muted" th:text="${chapter.description}"></p>
+                                <span class="badge bg-sucess" th:text="${chapter.questionCount}+'문항'"></span>
+                            </div>
+                            <div class="card-footer">
+                                <a class="btn btn-success flex-fill" th:href="@{/questions/chapter/{id}(id=${chapter.id})}">
+                                    <i></i> 문제목록
+                                </a>
+                                <a class="btn btn-primary flex-fill" th:href="@{/questions/new/{id}(id=${chapter.id})}">
+                                    <i></i> 문제등록
+                                </a>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+  <div th:replace="~{fragments/layout::scripts}"></div>
+</body>
+</html>
