@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<!--xmlns를 지정하면 해당 명령이 목록으로 출력-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout::head('홈')}">
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <!--사이드바-->
+      <th:block th:replace="~{fragments/layout::sidebar('home')}"></th:block>
+    </div>
+  </div>
+  <footer>
+    <!--class="모양 모양색상 정렬 글자색 사용자변수명-->
+    <div class="text-center text-muted">CBT 평가시스템 &copy 2026</div>
+  </footer>
+  <div th:replace="~{fragments/layout::scripts}"></div>
+</body>
+</html>

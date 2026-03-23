@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout::head('교과목 수정')}"> <!--헤더 추가-->
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="container-fluid"> <!--본문-->
+    <div class="row">
+        <th:block th:replace="~{fragments/layout::sidebar('subject')}"></th:block> <!--사이드바 추가-->
+        <main class="col-md-10 main-content">
+            <div class="page-header"> <!--제목-->
+                <nav aria-label="breadcrumb"> <!--메뉴바-->
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a th:href="@{/subjects}">과목관리</a></li>
+                        <li class="breadcrumb-item"><a th:href="@{/subjects/{id}(id=${subject.id})}" th:text="${subject.id}"></a></li>
+                        <li class="breadcrumb-item active">수정</li>
+                    </ol>
+                </nav>
+                <h2><i class="bi bi-plus-circle text-primary"></i> 교과목 수정</h2>
+            </div>
+            <div class="card" style="max-width: 600px;"> <!--입력-->
+                <div class="card-header"><!--카드제목-->
+                    교과목 정보 입력
+                </div>
+                <div class="card-body"><!--카드본문-->
+                    <div th:if="${param.error}" class="alert alert-danger" th:text="${param.error}"><!--?error=로 전달된 변수, model사용 안하고 직접 변수전달, 등록실패시 출력될 오류메세지-->
+
+                    </div>
+                    <form th:action="@{/subjects/edit/{id}(id=${subject.id})}" method="post"><!--교과목 등록-->
+                        <div class="mb-3"><!--교과목, 항목 한개-->
+                            <label class="form-label fw-bold">교과목명<span class="text-danger">*</span></label><!--항목 제목-->
+                            <input type="text" class="form-control" name="name" th:value="${subject.name}" placeholder="교과목을 입력하세요."><!--입력-->
+                        </div>
+                        <div class="mb-3"><!--설명, 항목 한개-->
+                            <label class="form-label fw-bold">설명</label>
+                            <textarea class="form-control" name="description" th:text="${subject.description}" rows="3" placeholder="교과목 설정을 입력하세요."></textarea>
+                        </div>
+                        <div class="d-flex gap-2"><!--버튼, 항목 한개, M-객체의 밖깥여백, P-객체의 안쪽여백, GAP-객체와 객체사이의 간격-->
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> 수정
+                            </button>
+                            <a class="btn btn-secondary" th:href="@{/subjects/{id}(id=${subject.id})}">
+                                취소
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout::scripts}"></div> <!--스크립트 추가-->
+</body>
+</html>

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout::head('과목관리')}"> <!--헤더 추가-->
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="container-fluid"> <!--본문-->
+    <div class="row">
+        <th:block th:replace="~{fragments/layout::sidebar('subject')}"></th:block> <!--사이드바 추가-->
+    </div>
+</div>
+<div th:replace="~{fragments/layout::scripts}"></div> <!--스크립트 추가-->
+</body>
+</html>

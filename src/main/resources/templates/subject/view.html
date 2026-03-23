@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout::head('과목목 상세')}"> <!--헤더 추가-->
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="container-fluid"> <!--본문-->
+    <div class="row">
+        <th:block th:replace="~{fragments/layout::sidebar('subject')}"></th:block> <!--사이드바 추가-->
+        <main class="col-md-10 main-content">
+            <div class="page-header d-flex justify-content-between align-items-center"> <!--과목정보 및 삭제버튼-->
+                <div><!--교과목정보-->
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-1">
+                            <li class="breadcrumb-item"><a th:href="@{/subjects}">과목관리</a></li>
+                            <li class="breadcrumb-item active" th:text="${subject.name}">교과목</li>
+                        </ol>
+                    </nav>
+                    <h2>
+                        <i class="bi bi-journal-bookmark text-primary"></i><span th:text="${subject.name}"></span>
+                    </h2>
+                    <p class="text-muted mb-0" th:text="${subject.description}"></p>
+                </div>
+                <div> <!--수정/삭제버튼-->
+                    <a class="btn btn-warning me-1" th:href="@{/subjects/edit/{id}(id=${subject.id})}">
+                        <i class="bi bi-pencil"></i> 수정
+                    </a>
+                    <a class="btn btn-danger" th:href="@{/subjects/delete/{id}(id=${subject.id})}"
+                    onclick="return confirm('삭제하시겠습니까?')">
+                        <i class="bi bi-trash"></i> 삭제
+                    </a>
+                </div>
+            </div>
+            <div th:if="${param.error}" class="alert alert-danger" th:text="${param.error}"><!--오류메세지 출력-->
+
+            </div>
+            <div class="row"> <!--교과목과 관련된 챕터-->
+                <div class="col-md-8"><!--챕터 목록-->
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-betwwen align-items-center">
+                            <span><i class="bi bi-list-ol"></i> 챕터 목록(<span th:text="${chapters.size()}"></span>개)</span>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>챕터번호</th>
+                                        <th>챕터명</th>
+                                        <th>설명</th>
+                                        <th>문제 수</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody><!--th갯수만큼 td로 구성-->
+                                    <tr th:if="${chapters.empty}">
+                                        <td colspan="5" class="text-center text-muted py-4">등록된 챕터가 없습니다.</td>
+                                    </tr>
+                                    <tr th:each="chapter:${chapters}">
+                                        <td>
+                                            <span class="badge bg-secondary" th:text="'CH'+${chapter.chapterNo}"></span>
+                                        </td>
+                                        <td><!--TODO: 챕터를 클릭시 해당 문제로 이동-->
+                                            <a href="#" class="text-decoration-none fw-bold" th:text="${chapter.title}"></a>
+                                        </td>
+                                        <td class="text-muted" th:text="${chapter.description}">
+
+                                        </td>
+                                        <td>
+                                            <!--ToDo : 문항수 추가-->
+                                        </td>
+                                        <td>
+                                            <a href="#" class="btn btn-sm btn-outline-success btn-action">
+                                                <i class="bi bi-list-check"></i> <!--TODO: 해당문제로..-->
+                                            </a>
+                                            <a th:href="@{/subjects/{sid}/chapters/edit/{cid}(sid=${subject.id}, cid=${chapter.id})}" class="btn btn-sm btn-outline-warning btn-action">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a th:href="@{/subjects/{sid}/chapters/delete/{cid}(sid=${subject.id}, cid=${chapter.id})}" class="btn btn-sm btn-outline-danger btn-action"
+                                            onclick="return confirm('챕터를 삭제하면 해당 챕터의 모든 문제도 삭제됩니다. 삭제하시겠습니까?')">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4"> <!--챕터 입력폼-->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-plus-circle text-primary"></i> 챕터 등록
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/subjects/{id}/chapters(id=${subject.id})}" method="post">
+                                <div class="mb-2">
+                                    <label class="form-label fw-bold">
+                                        챕터 번호<span class="text-danger">*</span>
+                                    </label>
+                                    <input class="form-control" type="number" name="chapterNo" min="1" placeholder="예:1" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label fw-bold">
+                                        챕터명 <span class="text-danger">*</span>
+                                    </label>
+                                    <input class="form-control" type="text" name="title" placeholder="챕터명을 입력하세요." required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="from-lable fw-bold">
+                                        설명
+                                    </label>
+                                    <textarea class="form-control" name="description" rows="2" placeholder="챕터 설명(생략가능)">
+
+                                    </textarea>
+                                </div>
+                                <button class="btn btn-primary w-100" type="submit">
+                                    <i class="bi bi-plus"></i> 챕터 등록
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout::scripts}"></div> <!--스크립트 추가-->
+</body>
+</html>

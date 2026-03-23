@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout::head('과목관리')}"> <!--헤더 추가-->
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="container-fluid"> <!--본문-->
+    <div class="row">
+        <th:block th:replace="~{fragments/layout::sidebar('subject')}"></th:block> <!--사이드바 추가-->
+        <main class="col-md-10 main-content">
+            <div class="page-header d-flex justify-content-between align-items-center"> <!--제목-->
+                <div> <!--제목정보-->
+                    <h2>
+                        <i class="bi bi-journal-bookmark text-primary">과목 관리</i>
+                    </h2>
+                    <p class="text-muted mb-0">
+                        교과목 및 챕터를 관리합니다.
+                    </p>
+                </div>
+                <a class="btn btn-primary" th:href="@{/subjects/new}"><!--등록버튼-->
+                    <i class="bi bi-plus-circle"></i>교과목 등록
+                </a>
+            </div>
+            <div class="card"> <!--교과목 목록-->
+                <div class="card-header"> <!--카드헤더-->
+                    교과목 목록(<span th:text="${subjects.size()}">0</span>개)
+                </div>
+                <div class="card-body p-0"> <!--카드바디-->
+                    <table class="table table-hover mb-0"> <!--표-->
+                        <thead class="table-light"> <!--표제목-->
+                            <tr>
+                                <th>번호</th>
+                                <th>교과목명</th>
+                                <th>설명</th>
+                                <th>챕터 수</th>
+                                <th>등록일</th>
+                                <th>관리</th>
+                            </tr>
+                        </thead>
+                        <tbody> <!--표내용-->
+                            <tr th:if="${subjects.empty}"><!--데이터가 없을 때(if문으로 처리)-->
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    등록된 교과목이 없습니다.
+                                </td>
+                            </tr>
+                            <tr th:each="subject, stat:${subjects}"><!--반복, 데이터가 존재할 때(th 갯수만큼)-->
+                                <td th:text="${stat.count}"> <!--리스트의 순서번호-->
+
+                                </td>
+                                <td><!--제목-->
+                                    <a class="fw-bold text-decoration-none" th:text="${subject.name}" th:href="@{/subjects/{id}(id=${subject.id})}">제목</a>
+                                </td>
+                                <td th:text="${subject.description}"><!--설명-->
+
+                                </td>
+                                <td><!--챕터수-->
+                                    작업전
+                                </td>
+                                <td th:text="${#temporals.format(subject.createdAt, 'yyyy-MM-dd')}"><!--등록날짜-->
+
+                                </td>
+                                <td><!--작업-->
+                                    <a th:href="@{/subjects/{id}(id=${subject.id})}"
+                                    class="btn btn-sm btn-outline-primary btn-action"><i class="bi bi-eye"></i></a><!--상세보기-->
+                                    <a th:href="@{/subjects/edit/{id}(id=${subject.id})}"
+                                    class="btn btn-sm btn-outline-warning btn-action"><i class="bi bi-pencil"></i></a><!--수정-->
+                                    <a th:href="@{/subjects/delete/{id}(id=${subject.id})}"
+                                    class="btn btn-sm btn-outline-danger btn-action"
+                                    onclick="return confirm('삭제하시겠습니까?')"><i class="bi bi-trash"></i></a><!--삭제-->
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout::scripts}"></div> <!--스크립트 추가-->
+</body>
+</html>
