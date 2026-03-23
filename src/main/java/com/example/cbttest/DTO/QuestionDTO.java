@@ -25,6 +25,6 @@ public class QuestionDTO {
 
     private Long chapterId;//자식은 부모의 id값을 반드시 기억
     private String chapterTitle;
-    private String subjectId;//교과목id
+    private Long subjectId;//교과목id
     private String subjectName;
 }

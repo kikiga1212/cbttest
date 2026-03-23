@@ -124,6 +124,7 @@ public class SubjectService {
                 .name(entity.getName())
                 .description(entity.getDescription())
                 .createdAt(entity.getCreatedAt())
+                .chapterCount(entity.getChapters() != null ? entity.getChapters().size() : 0)
                 .build();
     }
 }

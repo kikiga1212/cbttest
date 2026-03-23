@@ -86,6 +86,7 @@ public class ChapterService {
                 .createdAt(entity.getCreatedAt())
                 .subjectId(entity.getSubject().getId()) //교과목 번호(부모테이블)
                 .subjectName(entity.getSubject().getName()) //교과목제목
+                .questionCount(entity.getQuestions() != null ? entity.getQuestions().size() : 0)
                 .build();
     }
 }

@@ -3,12 +3,14 @@ package com.example.cbttest.Repository;
 import com.example.cbttest.Entity.ChapterEntity;
 import com.example.cbttest.Entity.QuestionEntity;
 import com.example.cbttest.Entity.SubjectEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
-public interface QuestionRepository {
+@Repository
+public interface QuestionRepository extends JpaRepository<QuestionEntity, Long> {
     //문제와 관련된 쿼리
     //JPA를 이용한 쿼리
     //해당 챕터를 이용해서 문제를 조회
