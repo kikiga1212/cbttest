@@ -32,7 +32,61 @@
                     </a>
                 </div>
                 <div class="card">
+                    <div class="card-header">
+                        문제 목록(<span th:text="${questions.size()}"></span>개)
+                    </div>
+                    <div class="card-body">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>번호</th>
+                                    <th>유형</th>
+                                    <th>문제 내용</th>
+                                    <th>배점</th>
+                                    <th>등록일</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${questions.empty}">
+                                    <td colspan="6" class="text-center text-muted py-4">등록된 문제가 없습니다.</td>
+                                </tr>
+                                <tr th:each="q, stat:${questions}">
+                                    <td th:text="${stat.count}"></td>
+                                    <td>
+                                        <span class="badge badge-type"
+                                        th:classappend="${q.questionType=='MULTIPLE_CHOICE'}?'bg-primary':
+                                        (${q.questionType == 'SHORT_ANSWER'}? 'bg-warning text-dark': 'bg-purple')"
+                                        th:text="${q.questionType=='MULTIPLE_CHOICE'}?'4지선다':
+                                        (${q.questionType == 'SHORT_ANSWER'}? '필답형': '주관식')">
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <!-- 문자열이 가로의 폭을 넘어간 문자열은 화면에서 제외, 줄바꿈을 안함-->
+                                        <div style="max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                                        th:text="${q.content}">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info" th:text="${q.point}+'점'"></span>
+                                    </td>
+                                    <td th:text="${#temporals.format(q.createdAt,'yyyy-MM-dd')}"></td>
+                                    <td>
+                                        <a th:href="@{/questions/edit/{id}(id=${q.id})}"
+                                        class="btn btn-sm btn-outline-warning btn-action">
+                                        <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a th:href="@{/questions/delete/{id}(id=${q.id})}"
+                                        class="btn btn-sm btn-outline-danger btn-action"
+                                        onclick="return confirm('문제를 삭제하시겠습니까?')">
+                                        <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
 
+                    </div>
                 </div>
 
             </main>
