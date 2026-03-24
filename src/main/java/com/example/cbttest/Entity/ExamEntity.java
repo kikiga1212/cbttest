@@ -36,7 +36,7 @@ public class ExamEntity {
     @JoinColumn(name = "subject_id", nullable = false)
     private SubjectEntity subject;//응시교과목
 
-    @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL, orphanRemoval = true
+    @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ExamAnswerEntity> answers = new ArrayList<>();//응답(답안)
 
