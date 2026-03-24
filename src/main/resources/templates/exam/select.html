@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<!--xmlns를 지정하면 해당 명령이 목록으로 출력-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout::head('평가진행')}">
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!--사이드바-->
+        <th:block th:replace="~{fragments/layout::sidebar('exam')}"></th:block>
+        <main class="col-10 main-content">
+            <div class="page-header"><!--제목 -->
+                <h2><i class="bi bi-pencil-square text-waring"></i> 평가진행</h2>
+                <p class="text-muted mb-0"> 평가를 진행할 교과목을 선택하세요.</p>
+            </div>
+            <div class="row g-3"><!-- 목록-->
+                <div th:if="${subjects.empty}" class="col-12">
+                    <div class="alert alert-info">
+                      등록된 교과목이 없습니다. <a th:href="@{/subjects/new}">교과목을 먼저 등록</a>해 주세요
+                    </div>
+                </div>
+                <div class="col-md-4" th:each="subject:${subjects}"><!--교과목 목록 -->
+                    <div class="card h-100 border-warning">
+                        <div class="card-body text-center">
+                            <i class="bi bi-journal-bookmark fs-1 text-warning mb-3 d-block"></i>
+                            <h5 class="card-title" th:text="${subject.name}"></h5>
+                            <p class="card-text text-muted" th:text="${subject.description}"></p>
+                            <span class="badge bg-primary me-1" th:text="${subject.chapterCount}+'개 챕터'"></span>
+                        </div>
+                        <div class="card-footer">
+                            <a class="btn btn-warning w-100" th:href="@{/exam/start/{id}(id=${subject.id})}">
+                                <i class="bi bi-play-circle"></i> 이 과목으로 평가 시작
+                            </a>
+                        </div>
+                    </div>
+                </div>
+           </div>
+        </main>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout::scripts}"></div>
+</body>
+</html>
