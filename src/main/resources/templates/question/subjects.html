@@ -27,7 +27,7 @@
                                 <span class="badge bg-primary" th:text="${subject.chapterCount}+'개 챕터'"></span>
                             </div>
                             <div class="card-footer">
-                                <a th:href="@{/questions/subject/{id}(id=${subject.id})}">
+                                <a class="btn btn-success w-100" th:href="@{/questions/subject/{id}(id=${subject.id})}">
                                     <i class="bi bi-arrow-right-circle"></i> 챕터 선택
                                 </a>
 
