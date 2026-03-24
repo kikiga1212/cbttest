@@ -1,21 +1,173 @@
 <!DOCTYPE html>
 <!--xmlns를 지정하면 해당 명령이 목록으로 출력-->
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout::head('홈')}">
-    <meta charset="UTF-8">
-    <title>Title</title>
+<head th:replace="~{fragments/layout::head('문제 수정')}">
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <style>
+    .options-section { display: none;}
+    .options-section.show { display: block; }
+  </style>
 </head>
 <body>
-  <div class="container-fluid">
-    <div class="row">
-      <!--사이드바-->
-      <th:block th:replace="~{fragments/layout::sidebar('home')}"></th:block>
-    </div>
+<div class="container-fluid">
+  <div class="row">
+    <!--사이드바-->
+    <th:block th:replace="~{fragments/layout::sidebar('home')}"></th:block>
+    <main class="col-10 main-content">
+      <div class="page-header"><!--제목 -->
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/questions}">문제관리</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/questions/chapter/{id}(id=${chapter.id})}" th:text="${chapter.title}"></a></li>
+            <li class="breadcrumb-item activ">문제 수정</li>
+          </ol>
+        </nav>
+        <h2><i class="bi bi-pencil-circle text-primary"></i> 문제 수정</h2>
+
+      </div>
+      <div class="alert alert-danger" th:if="${param.error}" th:text="${param.error}"><!--오류메시지 -->
+
+      </div>
+      <div class="card"><!--등록 -->
+        <div class="card-header"><!-- 상품이미지, 호텔 룸 이미지-->
+          문제 정보 수정
+        </div>
+        <div><!--정보, 동작버튼 -->
+          <form th:action="@{/questions/edit/{id}(id=${chapter.id})}" method="post">
+            <div class="mb-3"><!--문제유형 -->
+              <label class="form-label fw-bold">문제유형 <span class="text-danger">*</span></label>
+              <!--스크립트에 태그 사용시 페이지에 1개만 존재시 id로, 페이지로 동일한 태그로 여러개 존재시  class로 -->
+              <!-- 이벤트(동작)-태그에 스크립트 명령으로 함수를 실행, jquery, script에서 이벤트로 인식해서-->
+              <select class="form-select" onchange="toggleOptions(this.value)" id="qeustionType" name="questionType"  required>
+                <option value="">유형선택</option>
+                <option th:selected="${question.questionType == 'MULTIPLE_CHOICE'}" value="MULTIPLE_CHOICE">4지선다형</option>
+                <option th:selected="${question.questionType == 'SHORT_ANSWER'}" value="SHORT_ANSWER">필답형</option>
+                <option th:selected="${question.questionType == 'ESSAY'}" value="ESSAY">주관식</option>
+              </select>
+            </div>
+            <div class="mb-3"><!--문제내용 -->
+              <label class="form-label fw-bold">문제내용 <span class="text-danger">*</span></label>
+              <textarea class="form-control" name="content" rows="4" th:text="${question.content}" placeholder="문제 내용을 입력하세요." required></textarea>
+            </div>
+            <div style="display: none;" class="mb-3 p-3 border rounded bg-light options-section" id="optionsSection"><!-- 4지선다 보기-->
+              <label class="form-label fw-bold text-primary">보기 (4지선다형)</label>
+              <div class="mb-2">
+                <div class="input-group">
+                  <span>① </span>
+                  <input class="form-control" type="text" name="option1" th:value="${question.option1}" placeholder="보기1">
+                </div>
+              </div>
+              <div class="mb-2">
+                <div class="input-group">
+                  <span>② </span>
+                  <input class="form-control" type="text" name="option2" th:value="${question.option2}" placeholder="보기2">
+                </div>
+              </div>
+              <div class="mb-2">
+                <div class="input-group">
+                  <span>③ </span>
+                  <input class="form-control" type="text" name="option3" th:value="${question.option3}"placeholder="보기3">
+                </div>
+              </div>
+              <div class="mb-2">
+                <div class="input-group">
+                  <span>④ </span>
+                  <input class="form-control" type="text" name="option4" th:value="${question.option4}"placeholder="보기4">
+                </div>
+              </div>
+            </div>
+            <div class="mb-3"><!--정답, 4지선다, 단답형/주관식 -->
+              <label class="form-label fw-bold">정답 <span class="text-danger">*</span></label>
+              <div style="display: none;" class="options-section" id="answerMultiple">
+                <select class="form-select" name="answer" id="answerSelect">
+                  <option value="">정답 선택</option>
+                  <option th:selected="${question.answer == '1'}" value="1">ⓛ 1번</option>
+                  <option th:selected="${question.answer == '2'}" value="2">② 2번</option>
+                  <option th:selected="${question.answer == '3'}" value="3">③ 3번</option>
+                  <option th:selected="${question.answer == '4'}" value="4">④ 4번</option>
+                </select>
+              </div>
+              <div id="answerText">
+                <input class="form-control" type="text" name="answerText" th:value="${question.answer}" placeholder="정답을 입력하세요(필답형/주관식)">
+              </div>
+            </div>
+            <div class="mb-3"><!--해설 -->
+              <label class="form-label fw-bold">해설</label>
+              <textarea class="form-control" name="explanation" rows="2" th:text="${question.explanation}" placeholder="해설 (선택)"></textarea>
+            </div>
+            <div class="mb-3"><!--배점 -->
+              <label class="form-label fw-bold">배점</label>
+              <input class="form-control" type="number" name="point" th:value="${question.point}" value="1" min="1" max="100">
+            </div>
+            <div class="d-flex gap-2"><!--등록/취소버튼 -->
+              <button class="btn btn-primary" type="submit" onclick="return prepareAnswer">
+                <i class="bi bi-save"></i> 등록
+              </button>
+              <a class="btn btn-secondary" th:href="@{/questions/chapter/{id}(id=${chapter.id})}">취소</a>
+            </div>
+          </form>
+        </div>
+        <!--card-footer 동작버튼 -->
+
+      </div>
+    </main>
   </div>
-  <footer>
-    <!--class="모양 모양색상 정렬 글자색 사용자변수명-->
-    <div class="text-center text-muted">CBT 평가시스템 &copy 2026</div>
-  </footer>
-  <div th:replace="~{fragments/layout::scripts}"></div>
+</div>
+
+<div th:replace="~{fragments/layout::scripts}"></div>
+<script>
+  //html의 태그를 이용하는 스크립트 함수 : DOM - > Jquery
+  //변수 선언은 3가지 : ( var, let ),=> 중간에 변수값을 변경해서 사용할때 const=>초기값을 저장해서 사용만 할때
+  function toggleOptions(type) {
+    //문서에서 id속성(id명)을 읽어와서 저장
+    const optionsSection = document.getElementById('optionsSection');//지정한 태그의 id를 읽어온다.
+    const answerMultiple = document.getElementById('answerMultiple');
+    const answerText = document.getElementById('answerText');
+    const answerSelect = document.getElementById('answerSelect');
+    //querySelector : 클래스나 id로 선언되지 않은 태그를 불러올때
+    //id가 answerTextInput인 태그안에 input태그를 불러온다.
+    const answerTextInput = document.querySelector('#answerText input');
+
+    if(type === 'MULTIPLE_CHOICE') { //script에서 같다 ===, java에서 같다 ==
+      optionsSection.classList.add('show');//클래스에 추가
+      answerMultiple.classList.add('show');
+
+      optionsSection.style.display = 'block';
+      answerMultiple.style.display = 'block';
+      answerText.style.display = 'none';//스타일의 속성값을 지정
+      answerSelect.required = true;//반드시 선택
+      answerTextInput.required = false;//생략가능
+    }else{//필답형, 주관식
+      optionsSection.classList.remove('show');//클래스에서 해당단어를 삭제
+      answerMultiple.classList.remove('show');
+
+      optionsSection.style.display = 'none';
+      answerMultiple.style.display = 'none';
+      answerText.style.display = 'block';
+      answerSelect.required = false;
+      answerTextInput.required = true;
+    }
+  }
+
+  function prepareAnswer() {//submit 버튼을 클릭했을때
+    const type = document.getElementById('questionType').value;//지정한 id 태그에서 값만 읽어온다.
+    const form = document.querySelector('form');//form태그를 읽어온다(form내에 모든 태그를 읽어온다.)
+
+    if(!type) {
+      alert('문제 유형을 선택하세요');
+      return false;//true이면 form내의 내용을 controller전달, false이면 form내의 내용을 전달하지 않는다.
+    }
+    if(type === 'MULTIPLE_CHOICE') {
+      //id가 answerText인 태그내의 input태그의 name을 지정
+      document.querySelector('#answerText input').name='_answerText';
+      //id가 answerSelect의 name을 지정
+      document.getElementById('answerSelect').name='_answer';
+    }else{
+      document.getElementById('answerSelect').name='_answerSelect';
+      document.querySelector('#answerText input').name='_answerText'
+    }
+  }
+</script>
 </body>
 </html>
