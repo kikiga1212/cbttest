@@ -21,5 +21,5 @@ public class ExamDTO {
     private String subjectName;
     private Integer totalScore;
     private Integer maxScore;
-    private List<ExamAnswerEntity> answers;
+    private List<ExamAnswerDTO> answers;
 }

@@ -1,5 +1,6 @@
 package com.example.cbttest.Service;
 
+import com.example.cbttest.DTO.ExamAnswerDTO;
 import com.example.cbttest.DTO.ExamDTO;
 import com.example.cbttest.Entity.ExamAnswerEntity;
 import com.example.cbttest.Entity.ExamEntity;
@@ -10,12 +11,12 @@ import com.example.cbttest.Repository.ExamRepository;
 import com.example.cbttest.Repository.QuestionRepository;
 import com.example.cbttest.Repository.SubjectRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -95,7 +96,70 @@ public class ExamService {
                 examAnswerRepository.save(answer);
             }
         }
+        //총점 계산
+        int total = examAnswerRepository.findByExamId(examId).stream()
+                .mapToInt(a->a.getEarnedPoint()!=null ? a.getEarnedPoint() : 0)
+                .sum();
+        int maxScore = examAnswerRepository.findByExamId(examId).stream()
+                .mapToInt(a->a.getQuestion().getPoint())
+                .sum();
+        exam.setTotalScore(total);
+        exam.setMaxScore(maxScore);
+        exam.setStatus("GRADED");
+        examRepository.save(exam);
     }
+
+    //평가 결과 조회
+    @Transactional(readOnly=true)
+    public ExamDTO getExamResult(Long examId){
+        ExamEntity exam = examRepository.findById(examId)
+                .orElseThrow(()-> new IllegalArgumentException("평가가 존재하지 않습니다."));
+
+        ExamDTO dto = toDTO(exam);
+
+        List<ExamAnswerDTO> answers = examAnswerRepository.findByExamId(examId).stream()
+                .map(a->ExamAnswerDTO.builder()
+                        .id(a.getId()).examId(examId)
+                        .questionId(a.getQuestion().getId())
+                        .questionContent(a.getQuestion().getContent())
+                        .option1(a.getQuestion().getOption1())
+                        .option2(a.getQuestion().getOption2())
+                        .option3(a.getQuestion().getOption3())
+                        .option4(a.getQuestion().getOption4())
+                        .correctAnswer(a.getQuestion().getAnswer())
+                        .submittedAnswer(a.getSubmittedAnswer())
+                        .isCorrect(a.getIsCorrect())
+                        .earnedPoint(a.getEarnedPoint())
+                        .maxPoint(a.getQuestion().getPoint())
+                        .gradingComment(a.getGradingComment())
+                        .build())
+                .collect(Collectors.toList());
+
+                dto.setAnswers(answers);
+                return dto;
+    }
+
+    //전체 평가 목록
+    @Transactional(readOnly=true)
+    public List<ExamDTO> getAllExams(){
+        return examRepository.findAllByOrderByExamDateDesc().stream().map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+    //교과목별 평가 목록
+    @Transactional(readOnly = true)
+    public List<ExamDTO> getExamsBySubject(Long subjectId){
+        return examRepository.findBySubjectIdOrderByExamDateDesc(subjectId).stream()
+                .map(this::toDTO).collect(Collectors.toList());
+    }
+
+    //상태별 평가 목록
+    @Transactional(readOnly = true)
+    public List<ExamDTO> getExamByStatus(String status){
+        return examRepository.findByStatus(status).stream().map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+
 
     //변환
     private ExamDTO toDTO(ExamEntity entity){
