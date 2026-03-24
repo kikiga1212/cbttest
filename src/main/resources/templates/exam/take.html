@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<!--xmlns를 지정하면 해당 명령이 목록으로 출력-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout::head('홈')}">
+<style>
+    .exam-container { max-width: 900px; margin: 0 auto; }
+    .question-box { background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px; padding: 20px; }
+    .question-box .question-header { font-weight: bold; color: #2c3e50; margin-bottom: 12px; }
+    .question-box .question-type-badge { font-size: 0.75rem; }
+    .option-label { cursor: pointer; display: block; padding: 8px 12px; border: 1px solid #dee2e6; border-radius: 6px; margin-bottom: 6px; transition: background 0.2s; }
+    .option-label:hover { background: #f0f4ff; }
+    input[type=radio]:checked + .option-label { background: #e3f0ff; border-color: #4a90d9; }
+    .essay-input { width: 100%; border: 1px solid #dee2e6; border-radius: 6px; padding: 10px; font-size: 1rem; }
+    .sticky-submit { position: sticky; bottom: 0; background: #fff; border-top: 2px solid #dee2e6; padding: 15px; z-index: 100; }
+    .exam-header { background: linear-gradient(135deg, #f7971e, #ffd200); border-radius: 10px; padding: 20px; margin-bottom: 25px; color: #333; }
+</style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!--사이드바-->
+            <th:block th:replace="~{fragments/layout::sidebar('home')}"></th:block>
+            <main class="col-10 main-content">
+                <div class="exam-container">
+                    <div class="exam-header"><!--제목 -->
+                        <h3 class="mb-1">
+                            <i class="bi bi-pencil-square"></i> <span th:text="${exam.subjectName}"></span> 평가
+                        </h3>
+                        <div>
+                            응시자 : <strong th:text="${exam.examineeName}"></strong>
+                            | 총 <strong th:text="${questions.size()}"></strong>문항
+                        </div>
+                    </div>
+                    <div th:if="${questions.empty}" class="alert alert-warning"><!--오류메시지 -->
+                        이 교과목에 등록된 문제가 없습니다. 먼저 문제를 등록해 주세요.
+                      <a class="btn btn-sm btn-primary ms-2" th:href="@{/questions}">문제 등록</a>
+                    </div>
+                    <form th:action="@{/exam/submit/{id}(id=${exam.id})}" method="post"
+                          th:if="${!questions.empty}"><!-- 시험문제-->
+                        <div class="question-box" th:each="q, stat:${questions}"><!--문제 -->
+                            <div class="question-header"><!-- 문항-->
+                                <span class="me-2 text-muted" th:text="${stat.count}+'.'"></span><!-- 문항번호-->
+                                <span class="badge question-type-badge me-2"
+                                th:classappend="${q.questionType=='MULTIPLE_CHOICE'}?'bg-primary':
+                                (${q.questionType=='SHORT_ANSWER'}? 'bg-warning text-dark':'bg-purple')"
+                                th:text="${q.questionType=='MULTIPLE_CHOICE'}?'4지선다':
+                                (${q.questionType=='SHORT_ANSWER'}?'필답형':'주관식')"></span>
+                                <span class="badge bg-info" th:text="${q.point}+'점'"></span>
+                                <div class="mt-2" th:text="${q.content}" style="font-size: 1.05rem; white-space: pre-line;"></div>
+                            </div>
+                            <div th:if="${q.questionType=='MULTIPLE_CHOICE'}" class="answer-input"><!-- 4지선다 보기-->
+                                <div th:each="optNum:${#numbers.sequence(1,4)}"><!--for문 동일, 1부터 4까지 반복 -->
+                                    <div style="position: relative; display: inline-block; width: 100%">
+                                        <input type="radio" th:name="'answer_'+${q.id}" th:value="${optNum}"
+                                               th:id="'opt'+${q.id}+'_'+${optNum}"
+                                               style="position: absolute; opacity: 0; width: 0; height: 0;">
+                                        <label th:for="'opt'+${q.id}+'_'+${optNum}" class="option-label">
+                                            <span th:text="${optNum ==1} ?'① ':
+                                            (${optNum ==2} ?'② ':
+                                            (${optNum ==3}? '③ ':'④ '))"></span>
+                                            <span th:text="${optNum ==1} ?${q.option1}:
+                                            (${optNum ==2} ?${q.option2}:
+                                            (${optNum ==3}?${q.option3}:${q.option4}))"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div th:if="${q.questionType=='SHORT_ANSWER'}" class="answer-input"><!-- 필답형-->
+                              <input type="text" class="essay-input" th:name="'answer_'+${q.id}" placeholder="답을 입력하세요">
+                            </div>
+                            <div th:if="${q.questionType=='ESSAY'}" class="answer-input"><!-- 주관식-->
+                                <textarea class="essay-input" rows="4" th:name="'answer_'+${q.id}" placeholder="서술형 답안을 입력하세요."></textarea>
+                            </div>
+
+                        </div>
+                        <div class="sticky-submit text-center"><!-- 답안제출-->
+                            <button type="submit" class="btn btn-warning btn-lg px-5"
+                            onclick="return confirm('답안을 제출하시겠습니까? 제출 후에는 수정할 수 없습니다.')">
+                                <i class="bi bi-send-check"></i> 답안 제출
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+
+  <div th:replace="~{fragments/layout::scripts}"></div>
+</body>
+</html>
