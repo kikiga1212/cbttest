@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<!--xmlns를 지정하면 해당 명령이 목록으로 출력-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout::head('평가 시작')}">
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!--사이드바-->
+            <th:block th:replace="~{fragments/layout::sidebar('exam')}"></th:block>
+            <main class="col-10 main-content">
+                <div class="page-header">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a th:href="@{/exam}">평가진행</a></li>
+                            <li class="breadcrumb-item active" th:text="${subject.name}"></li>
+                        </ol>
+                    </nav>
+                    <h2><i class="bi bi-play-circle text-warning"></i> 평가 시작</h2>
+                </div>
+                <div class="card" style="max-width: 500px;">
+                    <div class="card-header">
+                        <strong th:text="${subject.name}"></strong> 평가 응시자 정보 입력
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            교과목의 모든 챕터에 등록된 문제로 평가가 진행됩니다.
+                        </div>
+                    </div>
+                    <form th:action="@{/exam/start/{id}(id=${subject.id})}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">응시자 이름 <span class="text-danger">*</span></label>
+                            <input class="form-control" type="text" name="examineeName" placeholder="이름을 입력하세요"
+                             required autofocus><!--autofocus는 커서를 자동으로 해당 입력폼으로 이동 -->
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-warning flex-fill">
+                                <i class="bi bi-play-fill"></i> 평가 시작
+                            </button>
+                             <a th:href="@{/exam}" class="btn btn-secondary">취소</a>
+                        </div>
+                    </form>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+  <div th:replace="~{fragments/layout::scripts}"></div>
+</body>
+</html>
