@@ -22,8 +22,8 @@
                     <div class="d-flex gap-2 align-items-center flex-wrap">
                         <a class="btn btn-sm" th:href="@{/result}"
                         th:classappend="${selectedSubjectId==null and selectedStatus==null}?'btn-primary':'btn-outline-primary'">전체</a>
-                        <a class="btn btn-sm" th:href="@{/result(status='SUBMITED')}"
-                        th:classappend="${selectedStatus=='SUBMITED'? 'btn-warning':'btn-outline-warning'}">채점대기</a>
+                        <a class="btn btn-sm" th:href="@{/result(status='SUBMITTED')}"
+                        th:classappend="${selectedStatus=='SUBMITTED'? 'btn-warning':'btn-outline-warning'}">채점대기</a>
                         <a class="btn btn-sm" th:href="@{/result(status='GRADED')}"
                         th:classappend="${selectedStatus=='GRADED'? 'btn-success':'btn-outline-success'}">채점완료</a>
                         <span class="text-muted mx-1">|</span>
@@ -58,14 +58,30 @@
                                 <td th:text="${stat.count}"></td>
                                 <td class="fw-bold" th:text="${exam.examineeName}"></td>
                                 <td th:text="${exam.subjectName}"></td>
-                                <td th:text="${exam.examDate !=null}?{#temporals.format(exam.examDate, 'yyyy-MM-dd')}:'-'"></td>
-                                <td th:text=""></td>
-                                <td></td>
-                                <td></td>
+                                <td th:text="${exam.examDate!=null} ? ${#temporals.format(exam.examDate, 'yyyy-MM-dd')}:'-'"></td>
+                                <td>
+                                    <span class="badge"
+                                    th:classappend="${exam.status=='GRADED'} ? 'bg-success' :
+                                    (${exam.status == 'SUBMITTED'} ? 'bg-warning text-dark' : 'bg-secondary')"
+                                    th:text="${exam.status == 'GRADED'} ? '채점완료' :
+                                    (${exam.status == 'SUBMITTED'} ? '채점대기' : '진행중')"></span>
+                                </td>
+                                <td>
+                                    <span th:if="${exam.status=='GRADED'}" class="fw-bold text-success"
+                                    th:text="${exam.totalScore} + '/' + ${exam.maxScore} +'점'"></span>
+                                    <span th:unless="${exam.status=='GRADED'}" class="text-muted">-</span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/result/{id}(id=${exam.id})}"
+                                    class="btn btn-sm btn-outline-primary btn-action">
+                                        <i class="bi bi-eye"></i> 결과보기</a>
+                                    <a th:href="@{/result/grade/{id}(id=${exam.id})}"
+                                    class="btn btn-sm btn-outline-success btn-action"
+                                    th:if="${exam.status=='SUBMITTED'}">
+                                        <i class="bi bi-check2-square"></i> 채점</a>
+                                </td>
                             </tr>
-
                         </tbody>
-
                     </table>
                 </div>
             </div>

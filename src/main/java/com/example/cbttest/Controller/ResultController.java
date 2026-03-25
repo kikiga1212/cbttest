@@ -25,7 +25,7 @@ public class ResultController {
                               @RequestParam(required = false) String status, Model model){
         if(subjectId != null){//교과목 id가 존재하면
             model.addAttribute("exams", examService.getExamsBySubject(subjectId));
-            model.addAttribute("selectedSubjected",subjectId);
+            model.addAttribute("selectedSubjectId",subjectId);
         } else if (status != null) {//교과목id는 없고, 상태가 있으면
             model.addAttribute("exams", examService.getExamByStatus(status));
             model.addAttribute("selectedStatus",status);
