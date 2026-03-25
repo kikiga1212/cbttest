@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<!--xmlns를 지정하면 해당 명령이 목록으로 출력-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout::head('홈')}">
+    <style>
+        .answer-row { padding: 15px; border-radius: 8px; margin-bottom: 12px; }
+        .answer-correct { background: #d4edda; border-left: 4px solid #28a745; }
+        .answer-wrong { background: #f8d7da; border-left: 4px solid #dc3545; }
+        .answer-pending { background: #fff3cd; border-left: 4px solid #ffc107; }
+        .score-circle { width: 120px; height: 120px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; margin: 0 auto; }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!--사이드바-->
+        <th:block th:replace="~{fragments/layout::sidebar('home')}"></th:block>
+        <main class="col-10 main-content">
+            <div class="page-header d-flex justify-content-between align-items-center"><!--제목 -->
+                <div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-1">
+                            <li class="breadcrumb-item"><a href="">평가결과</a></li>
+                            <li class="breadcrumb-item active">결과 상세</li>
+                        </ol>
+                    </nav>
+                    <h2><i class="bi bi-clipboard-check text-info"></i> 평가 결과 상세</h2>
+                </div>
+                <div>
+                    <a th:href="@{/result/grade/{id}(id=${examid})}"
+                    class="btn btn-success me-1"
+                    th:if="${exam.status=='SUBMITTED' or needsGrading}"><i class="bi bi-check2-square"></i> 수동 채점</a>
+                    <a th:href="@{/result}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> 목록</a>
+                </div>
+            </div>
+            <div class="row mb-4"><!--요약정보 -->
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <div class="text-muted small mb-1">응시자</div>
+                            <div class="fw-bold fs-5" th:text="${exam.examineeName}"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <div class="text-muted small mb-1">교과목</div>
+                            <div class="fw-bold fs-5" th:text="${exam.subjectName}"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <div class="text-muted small mb-1">평가일시</div>
+                            <div class="fw-bold fs-5"
+                            th:text="${exam.examDate !=null } ? ${#temporals.format(exam.examDate, 'yyyy-MM-dd')}:'-'"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <div class="text-muted small mb-1">상태</div>
+                            <span class="badge fs-6"
+                            th:classappend="${exam.status=='GRADED'} ? 'bg-success' :
+                            (${exam.status=='SUBMITTED'} ? 'bg-warning text-dark' : 'bg-secondary')"
+                            th:text="${exam.status=='GRADED'} ? '채점완료' :
+                            (${exam.status=='SUBMITTED'} ? '채점대기' : '진행중')"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-4" th:if="${exam.status=='GRADED'}"><!--총점표시 -->
+                <div class="card-body text-center py-4">
+                    <div class="score-circle border border-4"
+                    th:classappend="${(exam.totalScore*100/exam.maxScore) >= 60} ? 'border-success text-success' :
+                    'border-danger text-danger'">
+                    <span th:text="${exam.totalScore}+'/'+${exam.maxScore}"></span>
+                    </div>
+                    <div class="mt-3">
+                        <span class="fs-4 fw-bold"
+                        th:text="${#numbers.formatDecimal(exam.totalScore/exam.maxScore*100,1,1)}+'점'"></span>
+                        <span class="text-muted ms-2">(100점 환산)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card"><!-- 답안목록-->
+                <div class="card-header">
+                    문항별 답안 및 채점 결과
+                </div>
+                <div class="card-body">
+                    <div th:if="${exam.answers==null or exam.answers.empty}"
+                    class="text-muted text-center py-3">
+                        답안 데이터가 없습니다.
+                    </div>
+                    <div th:each="a, stat: ${exam.answers}" class="answer-row"
+                    th:classappend="${a.isCorrect==true} ? 'answer-correct' :
+                    (${a.isCorrect==false} ? 'answer-wrong' : 'answer-pending')">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="flex-grow-1"><!--4지선다 -->
+                                <div class="fw-bold mb-1"><!-- 문제유형 및 번호-->
+                                    <span th:text="${stat.count}+'. '"></span>
+                                    <span class="badge badge-type me-1"
+                                    th:classappend="${a.questionType=='MULTIPLE_CHOICE'} ? 'bg-primary' :
+                                    (${a.questionType=='SHORT_ANSWER'} ? 'bg-warning text-dark' : 'bg-secondary')"
+                                    th:text="${a.questionType=='MULTIPLE_CHOICE'} ? '4지선다' :
+                                    (${a.questionType=='SHORT_ANSWER'} ? '필답형' : '주관식')"></span>
+                                    <span th:text="${a.questionContent}"></span>
+                                </div>
+                                <div th:if="${a.questionType=='MULTIPLE_CHOICE'}" class="small text-muted mt-1">
+                                    <span th:text="'① '+ ${a.option1} +' ② ' +${a.option2} +
+                                    ' ③ ' + ${a.option3} + ' ④ ' + ${a.option4}"></span>
+                                    <!-- span 하나의 한 문항씩-->
+                                </div>
+                                <div class="mt-2 small"><!--답안-->
+                                    <span class="me-3">
+                                        <strong>제출 답안 :</strong>
+                                        <span th:if="${a.questionType=='MULTIPLE_CHOICE'}"
+                                        th:text="${a.submittedAnswer==null or
+                                        #strings.isEmpty(a.submittedAnswer)} ? '무응답' : ${a.submittedAnswer}"></span>
+                                        <span th:unless="${a.submittedAnswer ?:'무응답'}"></span>
+                                    </span>
+                                    <span th:if="${a.questionType=='MULTIPLE_CHOICE'}"><!--4지선다 정답 -->
+                                        <strong>정답 : </strong>
+                                        <span th:text="${a.correctAnswer}"></span>
+                                    </span>
+                                    <span th:unless="${a.questionType=='MULTIPLE_CHOICE'}"><!--필답식/주관식 정답 -->
+                                        <strong>모범답안 :</strong>
+                                        <span th:text="${a.correctAnswer ?: '무응답'}"></span>
+                                    </span>
+                                </div>
+                                <div th:if="${a.gradingComment}" class="mt-1 small text-muted">
+                                    <strong>채점 의견 :</strong><span th:text="${a.gradingComment}"></span>
+                                </div>
+                            </div>
+                            <div class="ms-3 text-center"><!--스크롤에 의해 가려진 정보를 하단에 반복 -->
+                                <div th:if="${a.isCorrect==true}" class="text-success fw-bold">
+                                    <i class="bi bi-check-circle-fill fs-4"></i><br>
+                                    <span th:text="${a.earnedPoint ?:0} + '/' +${a.maxPoint} + '점'"></span>
+                                </div>
+                                <div th:if="${a.isCorrect==true}" class="text-success fw-bold">
+                                    <i class="bi bi-check-circle-fill fs-4"></i><br>
+                                    <span th:text="${a.earnedPoint ?:0} + '/' +${a.maxPoint} + '점'"></span>
+                                </div>
+                                <div th:if="${a.isCorrect==nullalse}" class="text-warning fw-bold">
+                                    <i class="bi bi-check-circle-fill fs-4"></i><br>
+                                    <span th:text="${a.earnedPoint ?:0} + '/' +${a.maxPoint} + '점'"></span>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout::scripts}"></div>
+</body>
+</html>
