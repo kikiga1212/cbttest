@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<!--xmlns를 지정하면 해당 명령이 목록으로 출력-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout::head('수동 채점')}">
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!--사이드바-->
+        <th:block th:replace="~{fragments/layout::sidebar('result')}"></th:block>
+        <main class="col-10 main-content">
+            <div class="page-header"><!--제목 -->
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a th:href="@{/result}">평가결과</a></li>
+                        <li class="breadcrumb-item"><a th:href="@{/result/{id}(id=${exam.id})}">결과 상세</a></li>
+                        <li class="breadcrumb-item active">수동 채점</li>
+                    </ol>
+                </nav>
+                <h2><i class="bi bi-check2-square text-success"></i> 수동 채점</h2>
+                <p class="text-muted mb-0">
+                    응시자 : <strong th:text="${exam.examineeName}"></strong>
+                    교과목 : <strong th:text="${exam.subjectName}"></strong>
+                </p>
+
+            </div>
+            <div class="alert alert-info"><!--정보-->
+                <i class="bi bi-info-circle"></i> 4지선다형은 자동 채점되어 있습니다.
+                <strong>필답형 및 주관식 문항</strong>에 대한 점수를 입력하세요.
+            </div>
+            <form th:action="@{/result/grade/{id}(id=${exam.id})}" method="post"><!--수정폼 -->
+                <div class="card">
+                    <div class="card-header">
+                        문항별 채점
+                    </div>
+                    <div class="card-body">
+                        <div th:each="a, stat: ${exam.answers}"><!--답안출력 -->
+                            <div class="border rounded p-3 m-3"
+                            th:classappend="${a.questionType==',MULTIPLE_CHOICE'}?'bg-light':'border-warning'">
+                                <div class="fw-bold me-2"> <!--시험유형 및 점수 -->
+                                    <span th:text="${stat.count}+'. '"></span>
+                                    <span class="badge me-1"
+                                    th:classappend="${a.questionType=='MULTIPLE_CHOICE'} ? 'bg-primary' :
+                                    (${a.questionType=='SHORT_ANSWER'} ? 'bg-warning text-dark' : 'bg-secondary')"
+                                    th:text="${a.questionType=='MULTIPLE_CHOICE'} ? '4지선다' :
+                                    (${a.questionType=='SHORT_ANSWER'} ? '필답형' : '주관식')"></span>
+                                    <span th:text="${a.questionContent}"></span>
+                                    <span class="badge bg-info ms-2" th:text="'만점: '+${a.maxPoint}+'점'"></span>
+                                </div>
+                                <div class="row"><!--답안 비교 및 채점 -->
+                                    <div class="col-md-8"><!--모범 답안 및 응시자답안 -->
+                                        <div class="mb-q small text-muted">
+                                            <strong>모범답안 : </strong><span th:text="${a.correctAnswer}"></span>
+                                        </div>
+                                        <div class="mb-1 small">
+                                            <strong>응답자 답안 :</strong>
+                                            <span class="text-primary" th:text="${a.submittedAnswer ?: '(무응답)'}"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-mb-4">
+                                        <div th:if="${a.questionType=='MULTPLE_CHOICE'}" class="text-center"><!-- 4지선다 : 읽기전용-->
+                                            <span class="badge fs-6"
+                                            th:classappend="${a.isCorrect} ? 'bg-success' : 'bg-danger'"
+                                            th:text="${a.isCorrect} ? '정답 ' +${a.earnedPoint} + '점' : '오답 0 점'"></span>
+                                            <input type="hidden" th:name="'score_'+${a.questionId}'"
+                                            th:value="${a.earnedPoint?:0}">
+
+                                        </div>
+                                        <div th:unless="${a.questionType=='MULTPLE_CHOICE'}"><!--필답형 주관식 -->
+                                            <div class="mb-2">
+                                                <label class="form-label fw-bold text-success">부여 점수</label>
+                                                <div class="input-group">
+                                                    <input type="number" class="form-control" min="0" th:max="${a.maxPoint}"
+                                                    th:name="'score_'+${a.questionId}" th:value="${a.maxPoint}">
+                                                    <span class="input-group-text" th:text="'/' + ${a.maxPoint}"></span>
+                                                </div>
+                                            </div>
+                                            <div><!--총평 및 의견 -->
+                                                <label class="form-label small">채점 의견</label>
+                                                <input type="text" class="form-control form-control-sm"
+                                                th:name="'comment_'+ ${a.questionId}" th:value="${a.gradingComment}"
+                                                placeholder="채점 의견(선택)">
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-success"><i class="bi bi-check2-all"></i> 채점 완료</button>
+                        <a th:href="@{/result/{id}(id=${exam.id})}" class="btn btn-secondary">취소</a>
+                    </div>
+                </div>
+            </form>
+        </main>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout::scripts}"></div>
+</body>
+</html>
