@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<!--xmlns를 지정하면 해당 명령이 목록으로 출력-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout::head('평가결과')}">
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!--사이드바-->
+        <th:block th:replace="~{fragments/layout::sidebar('result')}"></th:block>
+        <main class="col-10 main-content">
+            <div class="page-header d-flex justify-content-between align-items-center"><!--제목 -->
+                <div>
+                    <h2><i class="bi bi-bar-chart-line text-info"></i> 평가결과</h2>
+                    <p class="text-muted mb-0"> 평가 결과를 조회하고 채점합니다.</p>
+                </div>
+            </div>
+            <div class="card mb-3"><!--평가결과 정보 -->
+                <div class="card-body py-2">
+                    <div class="d-flex gap-2 align-items-center flex-wrap">
+                        <a class="btn btn-sm" th:href="@{/result}"
+                        th:classappend="${selectedSubjectId==null and selectedStatus==null}?'btn-primary':'btn-outline-primary'">전체</a>
+                        <a class="btn btn-sm" th:href="@{/result(status='SUBMITED')}"
+                        th:classappend="${selectedStatus=='SUBMITED'? 'btn-warning':'btn-outline-warning'}">채점대기</a>
+                        <a class="btn btn-sm" th:href="@{/result(status='GRADED')}"
+                        th:classappend="${selectedStatus=='GRADED'? 'btn-success':'btn-outline-success'}">채점완료</a>
+                        <span class="text-muted mx-1">|</span>
+                        <span class="text-muted small">교과목별 :</span>
+                        <a th:each="subject:${subjects}" th:text="${subject.name}" class="btn btn-sm" th:href="@{/result(subjectId=${subject.id})}"
+                        th:classappend="${selectedSubjectId==subject.id}? 'btn-info':'btn-outline-info'"></a>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    평가 목록(<span th:text="${exams.size()}"></span>건)
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>번호</th>
+                                <th>응시자</th>
+                                <th>교과목</th>
+                                <th>평가일시</th>
+                                <th>상태</th>
+                                <th>점수</th>
+                                <th>관리</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${exams.empty}"><!-- 오류메시지-->
+                                <td colspan="7" class="text-center text-muted py-4">평가 이력이 없습니다.</td>
+                            </tr>
+                            <tr th:each="exam, stat:${exams}">
+                                <td th:text="${stat.count}"></td>
+                                <td class="fw-bold" th:text="${exam.examineeName}"></td>
+                                <td th:text="${exam.subjectName}"></td>
+                                <td th:text="${exam.examDate !=null}?{#temporals.format(exam.examDate, 'yyyy-MM-dd')}:'-'"></td>
+                                <td th:text=""></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+<footer>
+    <!--class="모양 모양색상 정렬 글자색 사용자변수명-->
+    <div class="text-center text-muted">CBT 평가시스템 &copy 2026</div>
+</footer>
+<div th:replace="~{fragments/layout::scripts}"></div>
+</body>
+</html>
