@@ -86,5 +86,29 @@
     </div>
 
   <div th:replace="~{fragments/layout::scripts}"></div>
+    <script>
+        //1. HTML에서 이벤트(onclick, onchange)를 이용해서 스크립트 함수(메소드)를 호출해서 처리(작은것), 상단/하단 위치 무관
+        //2. 스크립트내에서 이벤트를 인식해서 처리(복잡한것), 스크립트는 하단에 배치
+        //라디오버튼 선택시 스타일변경(메소드 선언없이 작성)
+
+        //html에 input태그에 속성이 type=radio로 설정된 태그를 모두 읽어온다.
+        //읽어온 태그에 반복해서 이벤트 적용->이벤트 발생시 값과 색상등을 적용
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', function () {//radio번트에 이벤트를 추가(변경)
+                const name = this.name;
+                //'input name ="' + name + '"'"=> 묶음'', 출력""
+                document.querySelectorAll('input[name="' + name + '"]').forEach(r => {
+                    const label = document.querySelector('label[for="' + r.id + '"]');
+                    if(label) label.style.background = '';
+                    if(label) label.style.borderColor = '';
+                });
+                const label = document.querySelector('label[for="' + this.id + '"]');
+                if(label) label.style.background = '#e3f0ff';
+                if(label) label.style.borderColor = '#4a90d9';
+            });
+
+
+        })
+    </script>
 </body>
 </html>
